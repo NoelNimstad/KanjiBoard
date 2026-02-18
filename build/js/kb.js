@@ -39,7 +39,7 @@ async function initialise(target) {
     svg.setAttribute("height", (109 * SCALE).toString());
     svg.setAttributeNS(null, "viewBox", "0 0 109 109");
     svg.style.position = "absolute";
-    svg.style.backgroundImage = "url(../../public/box.svg)";
+    svg.style.backgroundImage = "url(./box.svg)";
     svg.style.backgroundSize = "cover";
     svg.style.pointerEvents = "none";
     svg.style.boxSizing = "border-box";
