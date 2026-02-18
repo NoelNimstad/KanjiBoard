@@ -1,0 +1,37 @@
+<html>
+<head>
+    <link rel="stylesheet" href="styles.css"></link>
+    <script src="../build/dist/kb.bundle.js"></script>
+</head>
+<body>
+    <header>
+        <h1>漢字ボード</h1>
+    </header>
+    <main>
+        <h2 style="text-align: center;">Try it out!</h2>
+        <section class="try">
+            <div class="main">
+                <div id="target"></div>
+                <div class="buttons">
+                    <button onclick="window.load('や')">や</button>
+                    <button onclick="window.load('ゑ')">ゑ</button>
+                    <button onclick="window.load('鬱')">鬱</button>
+                    <button onclick="window.load('悟')">悟</button>
+                    <button onclick="window.load('仏')">仏</button>
+                </div>
+            </div>
+        </section>
+        <h2>Add it to your own webpage!</h2>
+        <code style="white-space-collapse: break-spaces;">&lt;<span style="color: rgb(246, 69, 87);">script</span> <span style="color: rgb(145, 231, 85);">src</span>="<a style="color: rgb(255, 242, 0);" href="../build/dist/kb.bundle.js">kb.bundle.js</a>"&gt;&lt;/<span style="color: rgb(246, 69, 87);">script</span>&gt;
+&lt;<span style="color: rgb(246, 69, 87);">script</span>&gt;
+    <span style="color: rgb(0, 179, 255);">kb</span>.<span style="color: rgb(145, 231, 85);">initialise</span>(<span style="color: gray;">/* ELEMENT */</span>);
+    <span style="color: rgb(0, 179, 255);">kb</span>.<span style="color: rgb(145, 231, 85);">load</span>(<span style="color: rgb(255, 242, 0);">"開"</span>);
+&lt;/<span style="color: rgb(246, 69, 87);">script</span>&gt;</code>
+        <h2>Contributing / Information</h2>
+    </main>
+    <script>
+        kb.initialise(document.getElementById("target"));
+        window.load = kb.load;
+    </script>
+</body>
+</html>

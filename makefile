@@ -1,0 +1,3 @@
+release:
+	tsc
+	webpack
