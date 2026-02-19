@@ -40,7 +40,9 @@ const recomputeOffset = () => { let boundingBox: DOMRect = canvas.getBoundingCli
                                 offset.y = boundingBox.y; }
 const translateEvent = (e: MouseEvent) => { return { x: (e.x - offset.x), y: (e.y - offset.y) } };
 
+let didComplete: boolean = false;
 let completion: Function = () => {};
+let mistake: Function = () => {};
 
 async function initialise(target: HTMLElement): Promise<void>
 {
@@ -98,6 +100,8 @@ async function initialise(target: HTMLElement): Promise<void>
         previous.y = bias.y = current.y = translated.y;
         drawing = true;
 
+        didComplete = false;
+
         // reset drawing path
         state.currentPoint = 0;
 
@@ -111,6 +115,11 @@ async function initialise(target: HTMLElement): Promise<void>
 
         drawing = false;
         context.clearRect(0, 0, canvas.width, canvas.height);
+
+        if(!didComplete)
+        {
+            mistake();   
+        }
 
         // @ts-expect-error
         debugDrawStrokePoints(state.strokes[state.currentStroke]); 
@@ -134,6 +143,8 @@ async function initialise(target: HTMLElement): Promise<void>
 
             if(state.currentPoint === state.strokes[state.currentStroke]!.length)
             {
+                didComplete = true;
+
                 console.log(`Stroke ${ state.currentStroke } cleared!`);
 
                 backdrop.innerHTML += state.svgPaths[state.currentStroke++];
@@ -240,6 +251,11 @@ function setOnComplete(callback: Function): void
     completion = callback;
 }
 
+function setOnMistake(callback: Function): void
+{
+    mistake = callback;
+}
+
 async function load(kanji: string): Promise<void>
 {
     state.kanji = kanji;
@@ -277,7 +293,8 @@ const kb =
 {
     initialise: initialise,
     load: load,
-    setOnComplete: setOnComplete
+    setOnComplete: setOnComplete,
+    setOnMistake: setOnMistake
 };
 
 declare global

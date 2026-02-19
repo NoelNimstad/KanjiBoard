@@ -26,7 +26,9 @@ const recomputeOffset = () => {
     offset.y = boundingBox.y;
 };
 const translateEvent = (e) => { return { x: (e.x - offset.x), y: (e.y - offset.y) }; };
+let didComplete = false;
 let completion = () => { };
+let mistake = () => { };
 async function initialise(target) {
     const container = document.createElement("div");
     container.style.position = "relative";
@@ -72,6 +74,7 @@ async function initialise(target) {
         previous.x = bias.x = current.x = translated.x;
         previous.y = bias.y = current.y = translated.y;
         drawing = true;
+        didComplete = false;
         // reset drawing path
         state.currentPoint = 0;
         console.clear();
@@ -82,6 +85,9 @@ async function initialise(target) {
             return;
         drawing = false;
         context.clearRect(0, 0, canvas.width, canvas.height);
+        if (!didComplete) {
+            mistake();
+        }
         // @ts-expect-error
         debugDrawStrokePoints(state.strokes[state.currentStroke]);
         console.debug("Stopped drawing");
@@ -96,6 +102,7 @@ async function initialise(target) {
             && Math.abs(current.y - state.strokes[state.currentStroke][state.currentPoint][1]) <= SENSITIVITY) {
             console.log(`Point ${state.currentPoint++} cleared!`);
             if (state.currentPoint === state.strokes[state.currentStroke].length) {
+                didComplete = true;
                 console.log(`Stroke ${state.currentStroke} cleared!`);
                 backdrop.innerHTML += state.svgPaths[state.currentStroke++];
                 drawing = false;
@@ -171,6 +178,9 @@ async function initialise(target) {
 function setOnComplete(callback) {
     completion = callback;
 }
+function setOnMistake(callback) {
+    mistake = callback;
+}
 async function load(kanji) {
     state.kanji = kanji;
     state.currentPoint = state.currentStroke = 0;
@@ -197,7 +207,8 @@ window.addEventListener("scroll", recomputeOffset, { passive: true });
 const kb = {
     initialise: initialise,
     load: load,
-    setOnComplete: setOnComplete
+    setOnComplete: setOnComplete,
+    setOnMistake: setOnMistake
 };
 ;
 window.kb = kb;

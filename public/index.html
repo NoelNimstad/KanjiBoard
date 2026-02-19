@@ -13,11 +13,11 @@
             <div class="main">
                 <div id="target"></div>
                 <div class="buttons">
-                    <button onclick="window.load('や')">や</button>
-                    <button onclick="window.load('ゑ')">ゑ</button>
-                    <button onclick="window.load('鬱')">鬱</button>
-                    <button onclick="window.load('悟')">悟</button>
-                    <button onclick="window.load('仏')">仏</button>
+                    <button onclick="kb.load('や')">や</button>
+                    <button onclick="kb.load('ゑ')">ゑ</button>
+                    <button onclick="kb.load('鬱')">鬱</button>
+                    <button onclick="kb.load('悟')">悟</button>
+                    <button onclick="kb.load('仏')">仏</button>
                 </div>
             </div>
         </section>
@@ -27,11 +27,43 @@
     <span style="color: rgb(0, 179, 255);">kb</span>.<span style="color: rgb(145, 231, 85);">initialise</span>(<span style="color: gray;">/* ELEMENT */</span>);
     <span style="color: rgb(0, 179, 255);">kb</span>.<span style="color: rgb(145, 231, 85);">load</span>(<span style="color: rgb(255, 242, 0);">"開"</span>);
 &lt;/<span style="color: rgb(246, 69, 87);">script</span>&gt;</code>
-        <h2>Contributing / Information</h2>
+        <p>The Kanji Board library is very small and easily embeded into your own projects.
+        All documentation needed can be found on <a style="color: rgb(0, 120, 255);" href="documentation.html">this page</a>.</p>
+        <h2>Information / Credits</h2>
+        <p>Kanji Board is a small library designed to be used in Japanese learning applications to practise handwriting.
+        It matches the strokes drawn by the users to path data from kanji SVGs, which is pulled from the <a style="color: rgb(0, 120, 255);" href="https://kanjivg.tagaini.net/">KanjiVG project</a>.
+        The project was created as an offshoot of a Kanji-handwriting learning application I previously developed, now focused on improving the reusability of the canvas element, which I struggled to find a good solution for.</p>
+        <h2>Contributing</h2>
+        <p>The GitHub® page for Kanji Board can be found <a style="color: rgb(0, 120, 255);" href="https://github.com/NoelNimstad/KanjiBoard">here</a>.
+        If you have anything you believe should be added to the project, please open an issue or submit a pull request!
+        Any and all contributions are much appreciated.
+        If you want to use the project to build something new, you are free to fork, copy, and use the source material however you see fit.
+        The Kanji Board library is under the <a style="color: rgb(0, 120, 255);" href="https://unlicense.org/">Unlicense</a> license.</p>
+        <div style="margin-top: 5rem;"></div>
+        <p class="stamp">Längdskidsmunken 2026</p>
     </main>
     <script>
-        kb.initialise(document.getElementById("target"));
-        window.load = kb.load;
+        const target = document.getElementById("target");
+
+        kb.initialise(target);
+
+        kb.setOnComplete(() =>
+        {
+            target.style.boxShadow = "0 0 0 3px lime inset";
+            setTimeout(() =>
+            {
+                target.style.boxShadow = "";
+            }, 100);
+        });
+
+        kb.setOnMistake(() =>
+        {
+            target.style.boxShadow = "0 0 0 3px red inset";
+            setTimeout(() =>
+            {
+                target.style.boxShadow = "";
+            }, 100);
+        });
     </script>
 </body>
 </html>
