@@ -29,6 +29,7 @@ const translateEvent = (e) => { return { x: (e.x - offset.x), y: (e.y - offset.y
 let didComplete = false;
 let completion = () => { };
 let mistake = () => { };
+let ready = () => { };
 async function initialise(target) {
     const container = document.createElement("div");
     container.style.position = "relative";
@@ -181,6 +182,9 @@ function setOnComplete(callback) {
 function setOnMistake(callback) {
     mistake = callback;
 }
+function setOnReady(callback) {
+    ready = callback;
+}
 async function load(kanji) {
     state.kanji = kanji;
     state.currentPoint = state.currentStroke = 0;
@@ -191,6 +195,7 @@ async function load(kanji) {
     state.svgPaths = data.svgPaths;
     backdrop.innerHTML = "";
     context.clearRect(0, 0, canvas.width, canvas.height);
+    ready();
     // @ts-expect-error
     debugDrawStrokePoints(state.strokes[state.currentStroke]);
 }
@@ -208,7 +213,8 @@ const kb = {
     initialise: initialise,
     load: load,
     setOnComplete: setOnComplete,
-    setOnMistake: setOnMistake
+    setOnMistake: setOnMistake,
+    setOnReady: setOnReady
 };
 ;
 window.kb = kb;

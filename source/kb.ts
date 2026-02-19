@@ -43,6 +43,7 @@ const translateEvent = (e: MouseEvent) => { return { x: (e.x - offset.x), y: (e.
 let didComplete: boolean = false;
 let completion: Function = () => {};
 let mistake: Function = () => {};
+let ready: Function = () => {};
 
 async function initialise(target: HTMLElement): Promise<void>
 {
@@ -256,6 +257,11 @@ function setOnMistake(callback: Function): void
     mistake = callback;
 }
 
+function setOnReady(callback: Function): void
+{
+    ready = callback;
+}
+
 async function load(kanji: string): Promise<void>
 {
     state.kanji = kanji;
@@ -269,6 +275,8 @@ async function load(kanji: string): Promise<void>
 
     backdrop.innerHTML = "";
     context.clearRect(0, 0, canvas.width, canvas.height);
+
+    ready();
 
     // @ts-expect-error
     debugDrawStrokePoints(state.strokes[state.currentStroke]);
@@ -294,7 +302,8 @@ const kb =
     initialise: initialise,
     load: load,
     setOnComplete: setOnComplete,
-    setOnMistake: setOnMistake
+    setOnMistake: setOnMistake,
+    setOnReady: setOnReady
 };
 
 declare global

@@ -47,6 +47,15 @@
 
         kb.initialise(target);
 
+        kb.setOnReady(() =>
+        {
+            target.style.boxShadow = "0 0 0 3px yellow inset";
+            setTimeout(() =>
+            {
+                target.style.boxShadow = "";
+            }, 100);
+        });
+
         kb.setOnComplete(() =>
         {
             target.style.boxShadow = "0 0 0 3px lime inset";
