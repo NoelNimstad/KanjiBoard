@@ -1,9 +1,10 @@
 import { assertCondition, assertExistance } from "./assert.js";
-import { debugDrawStrokePoints } from "./debug.js";
+// import { debugDrawStrokePoints } from "./debug.js";
 import { getSVG } from "./kanjivg.js";
 const LERP = 1;
 const SCALE = 3;
 const SENSITIVITY = 9 * SCALE;
+let ghosts = true;
 let drawing = false;
 let previous = { x: 0, y: 0 };
 let current = { x: 0, y: 0 };
@@ -27,9 +28,7 @@ const recomputeOffset = () => {
 };
 const translateEvent = (e) => { return { x: (e.x - offset.x), y: (e.y - offset.y) }; };
 let didComplete = false;
-let completion = () => { };
-let mistake = () => { };
-let ready = () => { };
+let completion, mistake, ready, stroke = () => { };
 async function initialise(target) {
     const container = document.createElement("div");
     container.style.position = "relative";
@@ -89,8 +88,7 @@ async function initialise(target) {
         if (!didComplete) {
             mistake();
         }
-        // @ts-expect-error
-        debugDrawStrokePoints(state.strokes[state.currentStroke]);
+        // debugDrawStrokePoints(state.strokes[state.currentStroke]); 
         console.debug("Stopped drawing");
     });
     canvas.addEventListener("mousemove", e => {
@@ -103,10 +101,9 @@ async function initialise(target) {
             && Math.abs(current.y - state.strokes[state.currentStroke][state.currentPoint][1]) <= SENSITIVITY) {
             console.log(`Point ${state.currentPoint++} cleared!`);
             if (state.currentPoint === state.strokes[state.currentStroke].length) {
-                didComplete = true;
                 console.log(`Stroke ${state.currentStroke} cleared!`);
-                backdrop.innerHTML += state.svgPaths[state.currentStroke++];
-                drawing = false;
+                revealNextStroke();
+                stroke();
                 context.clearRect(0, 0, canvas.width, canvas.height);
                 if (state.currentStroke === state.strokeCount) {
                     completion();
@@ -185,6 +182,37 @@ function setOnMistake(callback) {
 function setOnReady(callback) {
     ready = callback;
 }
+function setOnStroke(callback) {
+    stroke = callback;
+}
+function revealNextStroke(colour) {
+    didComplete = true;
+    if (!colour) {
+        backdrop.innerHTML += state.svgPaths[state.currentStroke++];
+    }
+    else {
+        backdrop.innerHTML += state.svgPaths[state.currentStroke++]?.replace("h ", `h stroke="${colour}" `);
+    }
+    drawing = false;
+}
+function ghostNextStroke(colour = "rgba(0, 0, 0, 0.2)") {
+    ghosts = true;
+    backdrop.innerHTML += state.svgPaths[state.currentStroke]?.replace("h ", `h stroke="${colour}" `);
+}
+function clearGhosts() {
+    if (ghosts) {
+        ghosts = false;
+        backdrop.innerHTML = backdrop.innerHTML.replace(/<path stroke=(.*?)\/path>/g, "");
+    }
+}
+function revealAllStrokes(colour) {
+    while (!isComplete()) {
+        revealNextStroke(colour);
+    }
+}
+function isComplete() {
+    return state.currentStroke === state.strokeCount;
+}
 async function load(kanji) {
     state.kanji = kanji;
     state.currentPoint = state.currentStroke = 0;
@@ -196,8 +224,7 @@ async function load(kanji) {
     backdrop.innerHTML = "";
     context.clearRect(0, 0, canvas.width, canvas.height);
     ready();
-    // @ts-expect-error
-    debugDrawStrokePoints(state.strokes[state.currentStroke]);
+    // debugDrawStrokePoints(state.strokes[state.currentStroke]);
 }
 // detect when canvas moves
 const observer = new ResizeObserver((entries) => {
@@ -212,9 +239,15 @@ window.addEventListener("scroll", recomputeOffset, { passive: true });
 const kb = {
     initialise: initialise,
     load: load,
+    isComplete: isComplete,
+    setOnReady: setOnReady,
+    setOnStroke: setOnStroke,
     setOnComplete: setOnComplete,
     setOnMistake: setOnMistake,
-    setOnReady: setOnReady
+    ghostNextStroke: ghostNextStroke,
+    clearGhosts: clearGhosts,
+    revealNextStroke: revealNextStroke,
+    revealAllStrokes: revealAllStrokes,
 };
 ;
 window.kb = kb;

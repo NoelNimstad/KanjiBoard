@@ -43,6 +43,7 @@
     </main>
     <p class="stamp">Längdskidsmunken 2026</p>
     <script>
+        let mistakes, timeout;
         const target = document.getElementById("target");
 
         kb.initialise(target);
@@ -54,6 +55,14 @@
             {
                 target.style.boxShadow = "";
             }, 100);
+
+            mistakes = 5;
+
+            kb.ghostNextStroke();
+            timeout = setTimeout(() =>
+            {
+                kb.clearGhosts();
+            }, 750);
         });
 
         kb.setOnComplete(() =>
@@ -72,6 +81,21 @@
             {
                 target.style.boxShadow = "";
             }, 100);
+
+            if(mistakes-- === 0)
+            {
+                kb.revealAllStrokes("red");
+            }
+        });
+
+        kb.setOnStroke(() =>
+        {
+            clearTimeout(timeout);
+            kb.ghostNextStroke();
+            timeout = setTimeout(() =>
+            {
+                kb.clearGhosts();
+            }, 750);
         });
     </script>
 </body>

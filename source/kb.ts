@@ -1,11 +1,12 @@
 import { assertCondition, assertExistance } from "./assert.js";
-import { debugDrawStrokePoints } from "./debug.js";
+// import { debugDrawStrokePoints } from "./debug.js";
 import { getSVG } from "./kanjivg.js";
 
 const LERP: number = 1;
 const SCALE: number = 3;
 const SENSITIVITY: number = 9 * SCALE;
 
+let ghosts: boolean = true;
 let drawing: boolean = false;
 
 let previous = { x: 0, y: 0 };
@@ -41,9 +42,7 @@ const recomputeOffset = () => { let boundingBox: DOMRect = canvas.getBoundingCli
 const translateEvent = (e: MouseEvent) => { return { x: (e.x - offset.x), y: (e.y - offset.y) } };
 
 let didComplete: boolean = false;
-let completion: Function = () => {};
-let mistake: Function = () => {};
-let ready: Function = () => {};
+let completion: Function, mistake: Function, ready: Function, stroke: Function = () => {};
 
 async function initialise(target: HTMLElement): Promise<void>
 {
@@ -122,8 +121,7 @@ async function initialise(target: HTMLElement): Promise<void>
             mistake();   
         }
 
-        // @ts-expect-error
-        debugDrawStrokePoints(state.strokes[state.currentStroke]); 
+        // debugDrawStrokePoints(state.strokes[state.currentStroke]); 
 
         console.debug("Stopped drawing");
     });
@@ -144,12 +142,11 @@ async function initialise(target: HTMLElement): Promise<void>
 
             if(state.currentPoint === state.strokes[state.currentStroke]!.length)
             {
-                didComplete = true;
-
                 console.log(`Stroke ${ state.currentStroke } cleared!`);
 
-                backdrop.innerHTML += state.svgPaths[state.currentStroke++];
-                drawing = false;
+                revealNextStroke();
+                stroke();
+
                 context.clearRect(0, 0, canvas.width, canvas.height);
 
                 if(state.currentStroke === state.strokeCount)
@@ -262,6 +259,52 @@ function setOnReady(callback: Function): void
     ready = callback;
 }
 
+function setOnStroke(callback: Function): void
+{
+    stroke = callback;
+}
+
+function revealNextStroke(colour?: string): void
+{
+    didComplete = true;
+    if(!colour)
+    {
+        backdrop.innerHTML += state.svgPaths[state.currentStroke++];
+    } else 
+    {    
+        backdrop.innerHTML += state.svgPaths[state.currentStroke++]?.replace("h ", `h stroke="${ colour }" `);
+    }
+    drawing = false;
+}
+
+function ghostNextStroke(colour: string = "rgba(0, 0, 0, 0.2)")
+{
+    ghosts = true;
+    backdrop.innerHTML += state.svgPaths[state.currentStroke]?.replace("h ", `h stroke="${ colour }" `);
+}
+
+function clearGhosts()
+{
+    if(ghosts)
+    {
+        ghosts = false;
+        backdrop.innerHTML = backdrop.innerHTML.replace(/<path stroke=(.*?)\/path>/g, "");
+    }
+}
+
+function revealAllStrokes(colour?: string): void
+{
+    while(!isComplete())
+    {
+        revealNextStroke(colour);
+    }
+}
+
+function isComplete(): boolean
+{
+    return state.currentStroke === state.strokeCount;
+}
+
 async function load(kanji: string): Promise<void>
 {
     state.kanji = kanji;
@@ -278,8 +321,7 @@ async function load(kanji: string): Promise<void>
 
     ready();
 
-    // @ts-expect-error
-    debugDrawStrokePoints(state.strokes[state.currentStroke]);
+    // debugDrawStrokePoints(state.strokes[state.currentStroke]);
 }
 
 // detect when canvas moves
@@ -301,9 +343,19 @@ const kb =
 {
     initialise: initialise,
     load: load,
+
+    isComplete: isComplete,
+
+    setOnReady: setOnReady,
+    setOnStroke: setOnStroke,
     setOnComplete: setOnComplete,
     setOnMistake: setOnMistake,
-    setOnReady: setOnReady
+
+    ghostNextStroke: ghostNextStroke,
+    clearGhosts: clearGhosts,
+
+    revealNextStroke: revealNextStroke,
+    revealAllStrokes: revealAllStrokes,
 };
 
 declare global
