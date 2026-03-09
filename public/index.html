@@ -54,16 +54,9 @@
             setTimeout(() =>
             {
                 target.style.boxShadow = "";
-            }, 100);
+            }, 200);
 
             mistakes = 5;
-
-            clearTimeout(timeout);
-            kb.ghostNextStroke();
-            timeout = setTimeout(() =>
-            {
-                kb.clearGhosts();
-            }, 750);
         });
 
         kb.setOnComplete(() =>
@@ -72,7 +65,7 @@
             setTimeout(() =>
             {
                 target.style.boxShadow = "";
-            }, 100);
+            }, 200);
         });
 
         kb.setOnMistake(() =>
@@ -81,7 +74,7 @@
             setTimeout(() =>
             {
                 target.style.boxShadow = "";
-            }, 100);
+            }, 200);
 
             if(mistakes-- === 0)
             {
@@ -91,12 +84,11 @@
 
         kb.setOnStroke(() =>
         {
-            clearTimeout(timeout);
-            kb.ghostNextStroke();
-            timeout = setTimeout(() =>
+            target.style.boxShadow = "0 0 0 3px pink inset";
+            setTimeout(() =>
             {
-                kb.clearGhosts();
-            }, 750);
+                target.style.boxShadow = "";
+            }, 200);
         });
     </script>
 </body>
