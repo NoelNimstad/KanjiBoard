@@ -3,7 +3,7 @@ import { assertCondition, assertExistance } from "./assert.js";
 import { getSVG } from "./kanjivg.js";
 const LERP = 1;
 const SCALE = 3;
-const SENSITIVITY = 9 * SCALE;
+let SENSITIVITY = 10 * SCALE;
 let ghosts = true;
 let drawing = false;
 let previous = { x: 0, y: 0 };
@@ -213,6 +213,9 @@ function revealAllStrokes(colour) {
 function isComplete() {
     return state.currentStroke === state.strokeCount;
 }
+function setSensitivity(sensitivity) {
+    SENSITIVITY = sensitivity * SCALE;
+}
 async function load(kanji) {
     state.kanji = kanji;
     state.currentPoint = state.currentStroke = 0;
@@ -244,6 +247,7 @@ const kb = {
     setOnStroke: setOnStroke,
     setOnComplete: setOnComplete,
     setOnMistake: setOnMistake,
+    setSensitivity: setSensitivity,
     ghostNextStroke: ghostNextStroke,
     clearGhosts: clearGhosts,
     revealNextStroke: revealNextStroke,

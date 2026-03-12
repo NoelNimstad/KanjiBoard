@@ -4,7 +4,7 @@ import { getSVG } from "./kanjivg.js";
 
 const LERP: number = 1;
 const SCALE: number = 3;
-const SENSITIVITY: number = 9 * SCALE;
+let SENSITIVITY: number = 10 * SCALE;
 
 let ghosts: boolean = true;
 let drawing: boolean = false;
@@ -305,6 +305,11 @@ function isComplete(): boolean
     return state.currentStroke === state.strokeCount;
 }
 
+function setSensitivity(sensitivity: number): void
+{
+    SENSITIVITY = sensitivity * SCALE;
+}
+
 async function load(kanji: string): Promise<void>
 {
     state.kanji = kanji;
@@ -350,6 +355,8 @@ const kb =
     setOnStroke: setOnStroke,
     setOnComplete: setOnComplete,
     setOnMistake: setOnMistake,
+    
+    setSensitivity: setSensitivity,
 
     ghostNextStroke: ghostNextStroke,
     clearGhosts: clearGhosts,
